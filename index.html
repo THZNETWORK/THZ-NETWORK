@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Free Fire Crosshair</title>
+    <style>
+        #crosshair { 
+            position: fixed; 
+            width: 16px; 
+            height: 16px; 
+            background-color: #FF0000; 
+            opacity: 0.8; 
+            pointer-events: none; 
+            z-index: 9999; 
+            border-radius: 50%; 
+            box-shadow: 0 0 8px rgba(255, 0, 0, 0.5); 
+            transform: translate(-50%, -50%); 
+        }
+    </style>
+</head>
+<body>
+    <script>
+        // Configurações do crosshair
+        const config = {
+            size: 16,
+            color: '#FF0000',
+            opacity: 0.8,
+            antiBan: true,
+            antiBlacklist: true
+        };
+
+        // Cria o crosshair
+        let crosshair = document.createElement('div');
+        crosshair.id = 'ff-site-crosshair';
+        document.body.appendChild(crosshair);
+
+        // Função para atualizar posição
+        function updatePosition(e) {
+            const x = e.clientX - (config.size / 2);
+            const y = e.clientY - (config.size / 2);
+            
+            // Anti-ban
+            if (config.antiBan) {
+                crosshair.style.left = `${x + (Math.sin(Date.now()/100) * 1)}px`;
+                crosshair.style.top = `${y + (Math.cos(Date.now()/100) * 1)}px`;
+            } else {
+                crosshair.style.left = `${x}px`;
+                crosshair.style.top = `${y}px`;
+            }
+        }
+
+        // Função para verificar blacklist
+        function checkBlacklist() {
+            if (!config.antiBlacklist) return;
+            
+            fetch('/api/check-blacklist')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.blacklisted) {
+                        crosshair.style.display = 'none';
+                    }
+                });
+        }
+
+        // Event listeners
+        document.addEventListener('mousemove', updatePosition);
+        window.addEventListener('load', checkBlacklist);
+    </script>
+</body>
+</html>
